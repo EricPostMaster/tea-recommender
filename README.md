@@ -16,3 +16,16 @@ Last night and this morning were totally recommendation-focused. I made my first
 * "Inverse Rating Frequency", not sure if that's an official name, but it's the same idea as Inverse Document Frequency
 
 So much to learn! I'm really excited to start putting all these pieces together and trying out different hyperparameters to get a solid model going.
+
+**7/5/22 - Item-based methods are taking some extra work to understand**  
+I'm not feeling great today, so I'm just doing some reading and reviewing. For some reason, I am struggling to imagine item-based collaborative filtering. User-based is intuitive for me, "People like you also enjoyed...". I can envision the User-Item matrix in my head and see how the different columns work together to inform the final outcome.
+
+I think item-based methods are counterintuitive because they compare along rows instead of down columns. I'm so used to looking down columns in my work to see an outlier or a missing data point, but I spend much less time looking across rows in my daily work because usually looking across rows means looking across different attributes, and those attributes are often only loosely related (e.g., expected revenue and marketing channel).
+
+One of the things I'm most interested in with recommender systems is the idea of recommending things that broaden one's perspectives. Terms used to describe this include novelty, diversity, and serendipity. The book I'm reading says that while item-based methods are good for suggesting relevant items, user-based methods are better for providing diversity. That makes sense to me because if I think about my own musical tastes, I tend to listen to a rather thin slice of the universe of music that I might possibly enjoy. If an item-based recommender were used for me, I'd quickly find myself in an echo chamber, and I might get bored. However, other people who like the same music I do might also be music buffs, and I can benefit from their habit of looking for independent bands to discover and enjoy by taking recommendations from their listening histories. 
+
+
+
+
+
+
