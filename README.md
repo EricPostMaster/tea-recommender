@@ -24,8 +24,13 @@ I think item-based methods are counterintuitive because they compare along rows 
 
 One of the things I'm most interested in with recommender systems is the idea of recommending things that broaden one's perspectives. Terms used to describe this include novelty, diversity, and serendipity. The book I'm reading says that while item-based methods are good for suggesting relevant items, user-based methods are better for providing diversity. That makes sense to me because if I think about my own musical tastes, I tend to listen to a rather thin slice of the universe of music that I might possibly enjoy. If an item-based recommender were used for me, I'd quickly find myself in an echo chamber, and I might get bored. However, other people who like the same music I do might also be music buffs, and I can benefit from their habit of looking for independent bands to discover and enjoy by taking recommendations from their listening histories. 
 
+**7/10/22 - Back to scraping**  
+I decided to go back to my scraping code yesterday because it was only stored in a Jupyter notebook. I created a `TeaDict` class that I think is awesome! Here's what it can do so far:
+* `get_teas` method: Scrapes tea names, brands, and URLs from Steepster tea overview page.
+* `get reviews` method: Gets reviewer names and ratings for each tea.
+* `save_tea_dict` method: Pickles the tea_dict data for later use.
 
+There's definitely room for improvement; for example, the `get_reviews` method is pretty long and can probably be broken into a couple of sub-functions. Even so, I'm really pleased with how it is turning out.  
 
-
-
+One of the most important updates is that now I can easily import the data and either update existing entries with more reviews or add new entries. Before, it started from scratch every time. #Lame
 
