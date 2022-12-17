@@ -10,7 +10,7 @@ One thing I want to say about this now that I'm getting back to it - comments an
 I've created the `UserDict` class, which I'm really excited about because it was just a couple of blocks of code in a Jupyter notebook before.
 
 I've got two potential items to work on next:
-* Automate scraping, like with a server or something. I'm not very familiar with how to do this, and it's kind of overwhelmin
+* Automate scraping, like with a server or something. I'm not very familiar with how to do this, and it's kind of overwhelming
 * Write a function that will scrape more info about an existing user. For example, if user 'eric' has 50 followers, but I've only scraped info on 30 of them, I want to be able to go and scrape the other 20 as well.
 
 **7/10/22 - Back to scraping**  
