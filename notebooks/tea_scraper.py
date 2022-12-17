@@ -1,8 +1,9 @@
 # Purpose of this class:
 ## Gather tea names, links, overall ratings - DONE
 ## Get initial reviewer and rating data for teas - DONE
-## Continue updating adding reviewers to teas with no reviewers (haven't written yet)
-## Update existing teas if/when they have new reviews (haven't written yet)
+## Continue updating adding reviewers to teas with no reviewers - DONE
+## Update existing teas if/when they have new reviews - DONE
+## Update a specific tea
 
 from math import ceil
 from os.path import exists
@@ -35,7 +36,7 @@ class TeaDict:
         Gets reviewer names and ratings for each tea.
 
     save_tea_dict(filename='tea_dict',filetype='p'):
-        Pickle the tea_dict data for later use.
+        Pickles the tea_dict data for later use.
     
     """
 
@@ -43,28 +44,19 @@ class TeaDict:
 
     def __init__(self):
         """
-        A class used to scrape and process tea review data from Steepster
+        Initializes the TeaDict class with existing data or an empty dictionary
+            if no previous data exists.
 
         ...
 
         Attributes
         ----------
         tea_dict : dict
-            Either loads an existing tea dictionary or initializes a new dict.
+            Either an existing tea dictionary or newly initialized empty dict.
 
-        Methods
-        -------
-        get_teas(tea_pages_to_scrape=1)
-            Scrapes tea names, brands, and URLs from tea overview page.
-
-        Parameters
-        ----------
-
-        tea_dict : dict
-            Either loads an existing tea dictionary or initializes a new dict.
 
         """
-        tea_dict_exists = exists('..\\data\pickled-data\\tea_dict.p')
+        tea_dict_exists = exists('..\\data\\pickled-data\\tea_dict.p')
         if tea_dict_exists == True:
             with open("..\\data\\pickled-data\\tea_dict.p", 'rb') as p:
                 self.tea_dict = pickle.load(p)
@@ -83,10 +75,22 @@ class TeaDict:
             There are 28 teas per page
 
         """
-        for i in range(1,tea_pages_to_scrape+1):
+        driver = webdriver.Chrome(ChromeDriverManager().install())
 
-            # Creates driver that works with the latest version of Chrome
-            driver = webdriver.Chrome(ChromeDriverManager().install())
+        # Find out how many tea pages there are
+
+        pages_xpath = "//nav[@class='pagination']//ul//li[last()-1]//a"
+        max_pages = driver.find_elements_by_xpath(pages_xpath)
+        for page in max_pages:
+            max_tea_pages = int(page.text)
+        
+        total_teas_scraped = len(self.tea_dict.keys())
+
+        start_page = int(ceil(total_teas_scraped/28))
+        end_page = min(tea_pages_to_scrape+1, max_tea_pages)
+
+        for i in range(start_page,end_page):
+
             driver.get(f'https://steepster.com/teas?page={i}&sort=popular')
 
             tea_xpath = "//div[@class='product tea']//div[@class='tea']"
@@ -95,14 +99,6 @@ class TeaDict:
 
             for tea in tea_root:
 
-                # tea_info = []
-
-                # Tea Name
-                # Not sure why I don't need this xpath, leaving it here for now
-                # tea_name_xpath = ".//a[@class='tea-name']"
-                # tea_name = tea.find_element_by_xpath(tea_name_xpath)
-
-                # for tea in tea_name:
                 nb = tea.text.split('\n')
                 name = nb[0]
 
@@ -111,25 +107,26 @@ class TeaDict:
                     print(f'{name} skipped. Already in tea_dict.')
                     pass
                 else:
+                    # Add tea name to tea_dict
                     self.tea_dict[name] = {}
                     print('name:', name)
 
+                    # Add brand to tea entry
                     brand = nb[1]
                     self.tea_dict[name]['brand'] = brand
                     print('brand:', brand)
 
+                    # Add url to tea entry
                     tea_link = tea.get_attribute("href")
                     self.tea_dict[name]['url'] = tea_link
 
-                    # Tea Rating
+                    # Add overall rating to tea entry
                     tea_rating_xpath = ".//div[contains(@class, 'tea-rating')]"
                     tea_rating = tea.find_element_by_xpath(tea_rating_xpath)
-
-                    # for tea in tea_rating:
                     rating = int(tea_rating.text)
                     self.tea_dict[name]['rating'] = rating
 
-            driver.quit()
+        driver.quit()
 
         return self.tea_dict
 
@@ -143,7 +140,7 @@ class TeaDict:
         respective ratings of that tea.
 
         If a tea is already in the tea dict, the function will start adding 
-        reviews from the page where it left of last time.
+        reviews from the page where it left off last time.
 
         Parameters
         ----------
@@ -161,7 +158,6 @@ class TeaDict:
             # Find out how many review pages a tea has
             tea_url = self.tea_dict[tea]['url']
 
-            # driver = webdriver.Chrome(ChromeDriverManager().install())
             driver.get(f'{tea_url}?page=1#tasting-notes')
             time.sleep(1)
 
@@ -256,3 +252,66 @@ class TeaDict:
         """
         with open(f"..\\data\pickled-data\\{filename}.{filetype}", "wb") as p:
             pickle.dump(self.tea_dict, p)
+    
+
+    
+    def add_individual_tea(self,url):
+        already_in_dict_check = self.search_url(data=self.tea_dict,url=url)
+        
+        if already_in_dict_check == True:
+            print("This tea is already in the tea dictionary.")
+        else:
+            print('Adding new tea to the tea dictionary...')
+            driver = webdriver.Chrome(ChromeDriverManager().install())
+            driver.get(url)
+
+            time.sleep(3)
+
+            driver.quit()
+
+
+
+
+        # Check if provided URL is in the list of urls in the tea dict - DONE
+        # Create driver - DONE
+        # Go to provided URL - DONE
+        # Get name (h1)
+        # Check if name exists
+        # brand, url, and aggregate rating
+
+    def search_url(self, data, url):
+        """Look for provided URL among existing tea URLs in the tea_dict
+
+        Parameters
+        ----------
+
+        data : dict
+            The tea_dict should be provided.
+        
+        url : str
+            URL you would like to check for in the tea_dict
+        
+        Note: This is a recursive function, so the data parameter will change
+            with each recursion of the function. That's why I added the data
+            parameter instead of just using self.tea_dict.
+        
+        Source: https://stackoverflow.com/questions/50698390
+            /find-a-key-if-a-value-exists-in-a-nested-dictionary
+        """
+        for a, b in data.items():
+            if url in str(b):
+                return True
+            if isinstance(b, dict):
+                return self.search_url(b, url)
+    
+
+    #         # else:
+    #             print(f'{url} is not in the tea dictionary yet. Add it!')
+            
+
+    # def get_keys(d, to_find):
+    #     for a, b in d.items():
+    #         if to_find in b:
+    #         yield a
+    #         if isinstance(b, dict):
+    #         yield from get_keys(b, to_find)
