@@ -79,7 +79,7 @@ class UserDict:
             self.all_urls = []
 
     
-    def get_specific_user(self, username='jack', num_follower_pgs=4):
+    def get_first_user(self, username='jack'):
         """
         Adds a specific user to start the self.user_dict. You should also use
             this to start your own user_dict from scratch, but you will probably
@@ -104,7 +104,7 @@ class UserDict:
 
         current_user = username
 
-        self.user_dict[current_user] = {}
+        self.user_dict = {current_user:{}}
 
         follower_count = int(driver.find_element_by_id('follower_count').text)
         max_follower_pg = int(math.ceil(follower_count / 10.0))
@@ -130,6 +130,7 @@ class UserDict:
 
         ff_counts = []
 
+        for j in range(1,min(max_follower_pg+1,2)):
             print('now reading ', current_user, ' page ', j)
             
             # if we're on page 1, keep going. Otherwise, load the next page
