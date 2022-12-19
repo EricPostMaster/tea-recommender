@@ -80,6 +80,24 @@ class UserDict:
 
     
     def get_first_user(self, username='jack'):
+        """
+        Adds a specific user to start the self.user_dict. You will probably
+            never need this, unless you are starting your own user_dict from
+            scratch.
+        
+        Note: This doesn't work to add a user to an existing user_dict because
+            it erases the entire dictionary (see current_user:{} below). If you
+            don't believe me and want to try it for yourself, at least use 
+            save_all_the_things() first, and then have at it.
+
+        ...
+
+        Parameters
+        ----------
+        username : str
+            The username to start the dictionary. (default is 'jack')
+        
+        """
 
         # Creates driver that is updated to work with the latest version of Chrome
         driver = webdriver.Chrome(ChromeDriverManager().install())
@@ -91,7 +109,7 @@ class UserDict:
 
         current_user = username
 
-        self.user_dict = {current_user:{}}
+        self.user_dict[current_user] = {}
 
         follower_count = int(driver.find_element_by_id('follower_count').text)
         max_follower_pg = int(math.ceil(follower_count / 10.0))
@@ -197,12 +215,34 @@ class UserDict:
         # updated in the class. Have to test it.
 
 
-    def get_users(self, num_users=2):
-        # to advance current user down the list of users,
+    def get_users(self, num_users=2, num_follower_pgs=4):
+        """
+        Add batches of users to an existing user dictionary. The users are
+            already in the dictionary, but they only have follower page counts. 
+            This function scrapes the usernames of their followers as well as 
+            the follower counts of those followers so they can be added to the 
+            user_dict as well.
+
+        ...
+
+        Parameters
+        ----------
+        num_users : int
+            The number of users for which you would like to get follower info. 
+            (default is 2)
+
+        num_follower_pgs : int
+            The number of follower pages you would like to scrape. For example, 
+            if someone has 500 followers, there would be 50 pages of followers,
+            but you may only want to scrape 20 followers, so that would only be
+            two pages. Use the update_users function to get more followers for 
+            existing users. (default is 4)
+        
+        """
+
+        driver = webdriver.Chrome(ChromeDriverManager().install())
 
         i = 0
-
-        # for i in range(0,len(all_urls)+1):
 
         # this is the number of new users I want to add to the user_dict
         while i < num_users: # len(all_urls)+1:
@@ -219,7 +259,8 @@ class UserDict:
                 # print(f"new num_users: {num_users}")
                 i += 1
             else:
-                driver = webdriver.Chrome(ChromeDriverManager().install())
+                print('Adding user: ',current_user)
+                # driver = webdriver.Chrome(ChromeDriverManager().install())
 
                 # Navigate to user's followers page
                 driver.get(f'https://steepster.com/{current_user}/followers?page=1')
@@ -233,13 +274,14 @@ class UserDict:
                 
                 follower_urls = []
 
-                for j in range(1, min(max_follower_pg+1,4)):
+                for j in range(1, min(max_follower_pg+1,num_follower_pgs)):
                     # print('now reading ', current_user, ' page ', j)
 
                     # Saves a reload of the first page for every user
                     if j == 1:
                         pass
                     else:
+                        time.sleep(1)
                         driver.get(f'https://steepster.com/{current_user}/followers?page={j}')
 
                     # Retrieve URLs for followers
@@ -258,7 +300,7 @@ class UserDict:
                         page_follower_urls.append(m.group(0))
                         # if url not in user_dict keys, append to all_urls
 
-                        print('current_follower: ', m.group(0))
+                        # print('current_follower: ', m.group(0))
                         # print('Current user_dict list: ', user_dict.keys())
                         
 
@@ -283,7 +325,7 @@ class UserDict:
                     # zip the lists together
                     zipped_ff_list = list(zip(page_follower_urls, ff_counts))
 
-                    print('Followers who are not in the user_dict and their follower count:\n', zipped_ff_list)
+                    # print('Followers who are not in the user_dict and their follower count:\n', zipped_ff_list)
 
                     for user, user_ff_count in zipped_ff_list:
                         # print('User in zipped_ff_list: ', user)
@@ -306,10 +348,124 @@ class UserDict:
                 # print('---------------------\nall_urls: ',self.all_urls)
 
                 # Close browser and terminate driver instance
-                driver.quit()
+        driver.quit()
 
-                time.sleep(0.25)
+            # time.sleep(0.25)
 
+    
+    def update_users(self,num_users=1,num_follower_pgs=2):
+        """
+        Get more follower info for users in the user_dict who already have some
+            followers but haven't had all followers scraped yet. For example, 
+            if someone has 500 followers, there would be 50 pages of followers.
+            If you have only sraped 20 followers, the function will begin
+            scraping at page 3 and continue for the specified number of pages.
+
+        ...
+
+        Parameters
+        ----------
+        num_users : int
+            The number of users for which you want more follower info. 
+            (default is 1)
+
+        num_follower_pgs : int
+            The number of follower pages you want to scrape. (default is 2)
+        
+        """
+
+        driver = webdriver.Chrome(ChromeDriverManager().install())
+
+        i = 0
+
+        while i < num_users:
+            current_user = self.all_urls[i]
+            print("current user is: ", current_user)
+            print("i is: ", i)
+            print("num_users is: ", num_users)
+            follower_pages = self.user_dict[current_user]['follower_pgs']
+            followers_scraped = len(self.user_dict[current_user]['followers'])
+            pages_scraped = int(math.ceil(followers_scraped / 10.0))
+
+            if follower_pages <= pages_scraped:
+                num_users += 1
+            else:
+                for j in range(1,min(5,num_follower_pgs+1)):
+
+                    page = pages_scraped + j
+                    print('current user: ', current_user)
+                    print('page: ', page)
+                    url = 'https://steepster.com/'
+                    driver.get(f'{url}{current_user}/followers?page={page}')
+
+                    # Retrieve URLs for followers
+                    all_links = driver.find_elements_by_css_selector(".users>.user>.details>a")
+                    
+                    # For users who aren't in the user_dict yet, so I need to get their followers
+                    need_followers = []
+                    page_follower_urls = []
+                    ff_counts = []
+
+                    # Parse usernames from href (e.g., 'jack' from 'steepster.com/jack')
+                    # Then, add them to the need_followers list to update later
+                    follower_urls = []
+
+                    for link in all_links:
+                        user_link = link.get_attribute("href")
+                        m = re.search(r"(?<=\.com\/).*", user_link)
+                        follower_urls.append(m.group(0))
+                        page_follower_urls.append(m.group(0))
+                        # if url not in user_dict keys, append to all_urls
+
+                        # print('current_follower: ', m.group(0))
+                        # print('Current user_dict list: ', user_dict.keys())
+                        
+
+                        if m.group(0) not in self.user_dict.keys():
+                            # print('User is not in user_dict')
+                            if len(self.all_urls) > 0:
+                                self.all_urls.append(m.group(0))
+                            # Don't add to dictionary yet. I'll do that with the zipped lists later
+                            need_followers.append(m.group(0))
+                        else:
+                            pass
+                        
+                            # print("This user is already in the user_dict")
+                    # print('need_followers for ',current_user,': ',need_followers)
+                    
+                    # if url not in all_urls, add to a list to get number of followers
+                    follower_followers = driver.find_elements_by_css_selector(".users>.user>.details>em")
+
+                    for count in follower_followers:
+                        ff_count = int(count.get_attribute("data-pluralize-count"))
+                        ff_counts.append(ff_count)
+                    
+                    # zip the lists together
+                    zipped_ff_list = list(zip(page_follower_urls, ff_counts))
+
+                    # print('Followers who are not in the user_dict and their follower count:\n', zipped_ff_list)
+
+                    for user, user_ff_count in zipped_ff_list:
+                        # print('User in zipped_ff_list: ', user)
+                        if user in need_followers:
+                            # print('adding ',user,' to user_dict')
+                            self.user_dict[user] = {}
+                            self.user_dict[user]['follower_count'] = user_ff_count
+                            max_follower_pg = int(math.ceil(self.user_dict[user]['follower_count'] / 10.0))
+                            self.user_dict[user]['follower_pgs'] = max_follower_pg
+                        else:
+                            pass
+
+                    # add newly scraped users to current user follower list
+                    previous_followers = self.user_dict[current_user]['followers']
+                    self.user_dict[current_user]['followers'] = (previous_followers + follower_urls)
+
+
+            i += 1
+        
+        driver.quit()
+    
+    
     def save_user_dict(self,filename='user_dict',filetype='p'):
         """Pickle the user_dict data for later use.
         
@@ -347,12 +503,4 @@ class UserDict:
         self.save_user_dict()
         self.save_all_urls()
 
-# Need add_followers function to go get more followers for an existing user that
-# has either fained followers or never had them all scraped in the first place.
 
-# There is a line that says "for j in range(1, min(max_follower_pg+1,4)):" that
-# controls how many pages are scraped initially for each user.
-# If a user has 35 followers, that means they have 4 follower pages.
-# If len('followers') <= 35, let's say it's 30, then cieling divide that number
-# by 10 and you'll get the number of pages already scraped (3). To keep scraping
-# start from pages already scraped + 1.
