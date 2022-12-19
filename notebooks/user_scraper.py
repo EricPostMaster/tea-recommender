@@ -79,17 +79,12 @@ class UserDict:
             self.all_urls = []
 
     
-    def get_first_user(self, username='jack'):
+    def get_specific_user(self, username='jack', num_follower_pgs=4):
         """
-        Adds a specific user to start the self.user_dict. You will probably
-            never need this, unless you are starting your own user_dict from
-            scratch.
+        Adds a specific user to start the self.user_dict. You should also use
+            this to start your own user_dict from scratch, but you will probably
+            use it for adding specific users.
         
-        Note: This doesn't work to add a user to an existing user_dict because
-            it erases the entire dictionary (see current_user:{} below). If you
-            don't believe me and want to try it for yourself, at least use 
-            save_all_the_things() first, and then have at it.
-
         ...
 
         Parameters
@@ -121,8 +116,8 @@ class UserDict:
         # max_following_pg = int(round(following_count,-1)/10)
         max_following_pg = int(math.ceil(following_count / 10.0))
 
-        self.user_dict[current_user]['following_count'] = following_count
-        self.user_dict[current_user]['following_pgs'] = max_following_pg
+        # self.user_dict[current_user]['following_count'] = following_count
+        # self.user_dict[current_user]['following_pgs'] = max_following_pg
 
         # user_id = driver.find_elements_by_css_selector("h1>a")
 
@@ -135,7 +130,7 @@ class UserDict:
 
         ff_counts = []
 
-        for j in range(1,min(max_follower_pg+1,2)):
+        for j in range(1,min(max_follower_pg+1,num_follower_pgs)):
             print('now reading ', current_user, ' page ', j)
             
             # if we're on page 1, keep going. Otherwise, load the next page
