@@ -1,19 +1,19 @@
 from os.path import exists
-import pandas as pd
-import csv
-from parsel import Selector
+# import pandas as pd
+# import csv
+# from parsel import Selector
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+# from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
-from datetime import date
-from datetime import datetime, timedelta
+# from datetime import date
+# from datetime import datetime, timedelta
 import time
 import re
-import networkx as nx
-import matplotlib.pyplot as plt
-from pyvis.network import Network
+# import networkx as nx
+# import matplotlib.pyplot as plt
+# from pyvis.network import Network
 import math
-from selenium.common.exceptions import NoSuchElementException
+# from selenium.common.exceptions import NoSuchElementException
 import pickle
 
 
@@ -205,10 +205,6 @@ class UserDict:
         # Close browser and terminate driver instance
         driver.quit()
 
-        # return self.user_dict
-        # not sure if I need to return that at the end, since it should be
-        # updated in the class. Have to test it.
-
 
     def get_users(self, num_users=2):
         # to advance current user down the list of users,
@@ -319,7 +315,26 @@ class UserDict:
                 # print('---------------------\nall_urls: ',self.all_urls)
 
                 # Close browser and terminate driver instance
-                driver.quit()
+
+        driver.quit()
+
+    
+    def update_users(self,num_users=1,num_follower_pgs=2):
+        """
+        Get more follower info for users in the user_dict who already have some
+            followers but haven't had all followers scraped yet. For example, 
+            if someone has 500 followers, there would be 50 pages of followers.
+            If you have only sraped 20 followers, the function will begin
+            scraping at page 3 and continue for the specified number of pages.
+
+        ...
+
+        Parameters
+        ----------
+        num_users : int
+            The number of users for which you want more follower info. 
+            (default is 1)
+
 
                 time.sleep(0.25)
 
