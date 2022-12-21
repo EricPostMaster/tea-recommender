@@ -11,6 +11,16 @@ With my newfound but as-yet-untested knowledge, I reset the repository to the co
 
 Now it's time to test everything and see if it's working. I need to figure out how to test this, but for now I'm pretty sure I can just add/update one user at a time and make sure everything adds up correctly.
 
+_[an hour or so later]_
+
+Tested, and everything is working again!!! 🥳 I was able to get new users and update an existing user without messing up the base datasets. I'm very relieved.
+
+Two potential next steps:
+* Grow this user dataset and start making some recommendations with it
+* Improve the tea dictionary functions. They are very inefficient right now, so growing the dictionary 10x will take a relatively long time and consume a lot of data, and that's not even very much data to add to the dictionary. I don't want to grow that dataset until the functions are more efficient.
+
+I think I'm going to focus on growing the user dataset and doing some reco work with it. That will feel good.
+
 
 **12/16/22 - I'm back!**
 It's been a while since I've worked on this project, and I'm glad to be back at it. I took a break for a bit to work on my Fortune Cookie Movies project, move to Utah, and just generally take a break because I've been feeling a little burnt out. Anyway, I'm ready to get back into this.
