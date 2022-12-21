@@ -279,9 +279,9 @@ class UserDict:
                 # Set max follower and following pages
                 max_follower_pg = self.user_dict[current_user]['follower_pgs']
 
-                following_count = int(driver.find_element_by_id('following_count').text)
+                # following_count = int(driver.find_element_by_id('following_count').text)
                 # max_following_pg = int(round(following_count,-1)/10)
-                max_following_pg = int(math.ceil(following_count / 10.0))
+                # max_following_pg = int(math.ceil(following_count / 10.0))
                 
                 follower_urls = []
 
