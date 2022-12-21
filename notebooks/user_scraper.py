@@ -1,19 +1,19 @@
 from os.path import exists
-import pandas as pd
-import csv
-from parsel import Selector
+# import pandas as pd
+# import csv
+# from parsel import Selector
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+# from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
-from datetime import date
-from datetime import datetime, timedelta
+# from datetime import date
+# from datetime import datetime, timedelta
 import time
 import re
-import networkx as nx
-import matplotlib.pyplot as plt
-from pyvis.network import Network
+# import networkx as nx
+# import matplotlib.pyplot as plt
+# from pyvis.network import Network
 import math
-from selenium.common.exceptions import NoSuchElementException
+# from selenium.common.exceptions import NoSuchElementException
 import pickle
 
 
@@ -210,10 +210,6 @@ class UserDict:
         # Close browser and terminate driver instance
         driver.quit()
 
-        # return self.user_dict
-        # not sure if I need to return that at the end, since it should be
-        # updated in the class. Have to test it.
-
 
     def get_users(self, num_users=2, num_follower_pgs=4):
         """
@@ -349,8 +345,6 @@ class UserDict:
 
                 # Close browser and terminate driver instance
         driver.quit()
-
-            # time.sleep(0.25)
 
     
     def update_users(self,num_users=1,num_follower_pgs=2):
