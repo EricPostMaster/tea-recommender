@@ -2,6 +2,16 @@
 
 Welcome to my tea recommender repo! Because this is a pretty new project, the README is serving as a development journal of sorts. Once the project is complete, I'll put it elsewhere in the repo and replace it with something more like I have in my other repos (check them out!).
 
+**12/20/22 - Mercy me, what a headache...**
+This is why I can't have nice things. A couple of days ago I was writing new functions and growing the user dictionary, when I suddenly realized that the `all_urls` list was the wrong length. It had been over 1000 items long, and suddenly it was 30. Uh oh... Turns out, I had modified the `get_first_user` function just a bit to allow it to take a specific user URL input, thereby adding/updating a specific user in the data. What a great idea, right?! Well, it turns out there is a small problem with that. In that function, I set `self.all_urls` equal to the followers of the individual being scraped, which instead of updating the list just erases it and starts all over again. Also, it somehow broke the `self.user_dict`, but I was too frustrated to do a full _post mortem_. I just kind of scowled and grumbled at my computer for a while until my wife made me sit by her on the couch and decompress. Then I went and played Nintendo with some friends. Minigames are a good way to blow off some steam.
+
+Anyway, my first attempts at reverting the offending commits were not good. I got stuck in what I'm calling "revert hell" in GitHub Desktop, where nothing I did seemed to actually make meaningful changes to the repository. After stewing about it for a couple of days, I googled a few things tonight and thought that instead of reverting the most recent commits, I might just be able to revert to a _specific_ commit. And indeed that is possible with `git reset`! Huzzah! :tada:
+
+With my newfound but as-yet-untested knowledge, I reset the repository to the commit that I wanted, put those changes on a new branch (`correct-rollback`), and then merged that branch with the `main` branch on GitHub. A couple things were still missing when I updated the `main` branch locally, but I just copied and pasted those things from the commit details in GitHub. NBD.
+
+Now it's time to test everything and see if it's working. I need to figure out how to test this, but for now I'm pretty sure I can just add/update one user at a time and make sure everything adds up correctly.
+
+
 **12/16/22 - I'm back!**
 It's been a while since I've worked on this project, and I'm glad to be back at it. I took a break for a bit to work on my Fortune Cookie Movies project, move to Utah, and just generally take a break because I've been feeling a little burnt out. Anyway, I'm ready to get back into this.
 
