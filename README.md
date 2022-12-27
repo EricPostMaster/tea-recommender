@@ -2,6 +2,22 @@
 
 Welcome to my tea recommender repo! Because this is a pretty new project, the README is serving as a development journal of sorts. Once the project is complete, I'll put it elsewhere in the repo and replace it with something more like I have in my other repos (check them out!).
 
+**12/26/22 - First decent recos!**
+I spent so much time working on this project today, and it was great. I've got some new resources to help me along the way: I bought _Practical Recommender Systems_ (PRS) by Kim Falk and _Graph Machine Learning_ by Stamile, Marzullo, and Deusebio for Christmas, so I've been reading a fair bit over the last few days.
+
+I've decided that the first bit of work I wanted to do with the network data I've been scraping is just recommending users for people to follow. It's simple, unary data (either you follow them or you don't), so I decided to use the Jaccard index to sort recommendations and as a basis for making predictions. I'm very pleased with the outcome so far!
+
+There is definitely a lot more analysis to be done, but I think one of the biggest things I need to figure out is what the minimum level of connectivity is in the graph in order to be included in the recommendation generator. Many users don't follow anyone, and so it drags down the overall precision because they have 0 similarity to anyone else. Lame. I believe that issue is discussed in chapter 7 of PRS, so I'm definitely going to check it out. I can probably just recommend some top power users for new folks who don't follow anyone, just to get started. Eventually I could build something with node embeddings and ask people to give me some info to overcome the cold start problem, but for now I just want to get them out of my data! 😅
+
+Anyway, I think next steps will be cleaning up the input data and dealing with outliers so I can get a better idea of what kind of precision I get with average and highly active users. I'm also definitely open to other measurements of similarity. I just went with Jaccard because it was in my books, I could understand it, and the code to implement it wasn't too bad.
+
+
+**12/25/22 - An unexpected Christmas side quest**
+I had an unexpected adventure today. I tried to use the `jaccard_coefficient` function in NetworkX and found that it hasn't been implemented on directed graphs! Whaaaa?! So I decided to look into it. There was an issue opened up a while ago about it, and the consensus from the maintainers was that it doesn't need to be restricted to undirected graphs only, so they invited the person who opened the issue to submit a PR, which he never did. Hooray, opportunity for me to contribute!
+
+Turns out, it wasn't even that hard. The `common_neighbors` function that the `jacard_coefficient` function uses was not implemented on directed graphs, so I went through all the contributor stuff, edited the functions, and submitted a PR for it. I'm super stoked! Interestingly, I didn't have to edit any of the code; I just made it clear that the neighbors referred to in a directed graph are the targets of the node in question. Hopefully it gets merged soon. In the meantime, I'm implementing my own Jaccard coefficient function so I can keep working on my project!
+
+
 **12/20/22 - Mercy me, what a headache...**
 This is why I can't have nice things. A couple of days ago I was writing new functions and growing the user dictionary, when I suddenly realized that the `all_urls` list was the wrong length. It had been over 1000 items long, and suddenly it was 30. Uh oh... Turns out, I had modified the `get_first_user` function just a bit to allow it to take a specific user URL input, thereby adding/updating a specific user in the data. What a great idea, right?! Well, it turns out there is a small problem with that. In that function, I set `self.all_urls` equal to the followers of the individual being scraped, which instead of updating the list just erases it and starts all over again. Also, it somehow broke the `self.user_dict`, but I was too frustrated to do a full _post mortem_. I just kind of scowled and grumbled at my computer for a while until my wife made me sit by her on the couch and decompress. Then I went and played Nintendo with some friends. Minigames are a good way to blow off some steam.
 
