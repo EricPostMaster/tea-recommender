@@ -3,6 +3,7 @@ from os.path import exists
 # import csv
 # from parsel import Selector
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 # from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 # from datetime import date
@@ -95,6 +96,9 @@ class UserDict:
                 self.all_urls = pickle.load(p)
         else:
             self.all_urls = []
+
+        self.driver_options = Options()
+        self.driver_options.headless = True
 
     
     def get_first_user(self, username='jack'):
@@ -220,7 +224,9 @@ class UserDict:
         # follower_urls is added to the current user's dict entry
         self.user_dict[current_user]['followers'] = follower_urls
 
-        self.all_urls = follower_urls
+        # need to add a quick insert(0,username) here at some point
+
+        self.all_urls = follower_urls  # this would overwrite the existing 
         # Now go to the next follower page
 
         time.sleep(0.5)
@@ -254,7 +260,11 @@ class UserDict:
         """
 
         # this is the number of new users I want to add to the user_dict
-        driver = webdriver.Chrome(ChromeDriverManager().install())
+        
+        # options = Options()
+        # options.headless = True
+        driver = webdriver.Chrome(ChromeDriverManager().install(),
+                                  options=self.driver_options)
 
         i = 0
         
@@ -380,7 +390,8 @@ class UserDict:
             (default is 1)
 
         """
-        driver = webdriver.Chrome(ChromeDriverManager().install())
+        driver = webdriver.Chrome(ChromeDriverManager().install(),
+                                  options=self.driver_options)
 
         i = 0
 
@@ -392,11 +403,13 @@ class UserDict:
             follower_pages = self.user_dict[current_user]['follower_pgs']
             followers_scraped = len(self.user_dict[current_user]['followers'])
             pages_scraped = int(math.ceil(followers_scraped / 10.0))
+            print(f"follower pages: {follower_pages}\npages scraped: {pages_scraped}")
+            pages_left = follower_pages - pages_scraped
 
-            if follower_pages <= pages_scraped:
+            if pages_scraped >= follower_pages-1:
                 num_users += 1
             else:
-                for j in range(1,min(5,num_follower_pgs+1)):
+                for j in range(1,min(pages_left,num_follower_pgs+1)):
 
                     page = pages_scraped + j
                     print('current user: ', current_user)
