@@ -235,7 +235,7 @@ def calc_preds_precision(top_n_recs, user, test_data):
         Calculated as true positives / (true positives + false positives) from
         the top_n_recs compared to the test_data
     """
-    
+
     correct_preds = calc_correct_preds(top_n_recs, user, test_data)
     total_correct = len(correct_preds)  # true positives
     total_preds = len(top_n_recs)  # true positives + false positives
@@ -267,8 +267,8 @@ def get_random_node_sample(G, n=100, seed=123):
     return random_users
 
 
-def calculate_precision_at_k(G, jaccard_coefficients_list, test_data, n=100,
-                             k=50, seed=123):
+def calculate_precision_at_k(G, jaccard_coefficients_list, test_data, H,
+                             H_threshold, n=100, k=50, seed=123):
     """Calculates precision at k recommendations
 
     Parameters
@@ -280,6 +280,14 @@ def calculate_precision_at_k(G, jaccard_coefficients_list, test_data, n=100,
     
     test_data : list of tuples
         Portion of edgelist set aside as holdout data for scoring predictions
+
+    H : A NetworkX graph
+        This is the full NetworkX graph (not split into train/test). It is used
+        to calculate the out-degree of each user to see if they exceed the
+        threshold to be considered for recommendation.
+
+    H_threshold : int
+        Minimum out-degree required to be considered for recommendation
 
     n : int
         Number of nodes to sample. Default value: 100
@@ -295,23 +303,33 @@ def calculate_precision_at_k(G, jaccard_coefficients_list, test_data, n=100,
     p_at_k_all : list of lists
         List of lists where each sublist corresponds to a user n and each
         element of the sublist represents precision at each level of k.
+    
+    p_at_k_dict : dict
+        Dictionary with username as key and value is a list of precision at each
+        level of k.
     """
 
+    H = nx.DiGraph(H)
+    
     random_users = get_random_node_sample(G, n=n, seed=seed)
 
     p_at_k_all = []
 
-    for user in random_users:
-        p_at_k_user = []
-        user_jcs_sorted = sort_jaccard_coefficients(jaccard_coefficients_list,
-                                                    user=user)
-        for k in range(1,k+1):
-            user_top_n = get_top_n(user_jcs_sorted, G, n=k)
-            precision = calc_preds_precision(user_top_n, user, test_data)
-            p_at_k_user.append(precision)
-        p_at_k_all.append(p_at_k_user)
+    p_at_k_dict = {}
 
-    return p_at_k_all
+    for user in random_users:
+        if H.out_degree(user) >= H_threshold:
+            p_at_k_user = []
+            user_jcs_sorted = sort_jaccard_coefficients(jaccard_coefficients_list,
+                                                        user=user)
+            for k in range(1,k+1):
+                user_top_n = get_top_n(user_jcs_sorted, G, n=k)
+                precision = calc_preds_precision(user_top_n, user, test_data)
+                p_at_k_user.append(precision)
+            p_at_k_all.append(p_at_k_user)
+            p_at_k_dict[user] = p_at_k_user
+
+    return p_at_k_all, p_at_k_dict
 
 
 def calculate_avg_precision_at_k(p_at_k_all):
@@ -338,9 +356,10 @@ def calculate_avg_precision_at_k(p_at_k_all):
     x = [i for i in range(1,len(avg_p_at_k_all)+1)]
     y = avg_p_at_k_all
 
-    fig, ax = plt.subplots(figsize=(6,4))
+    fig, ax = plt.subplots(figsize=(7,4))
     plt.plot(x, y)
     plt.xlabel('k')
+    plt.xticks(np.arange(0, len(x)+1, step=1))
     plt.ylabel('Precision')
     plt.title(f'Precision at k for {len(p_at_k_all)} random users')
     plt.tight_layout()
