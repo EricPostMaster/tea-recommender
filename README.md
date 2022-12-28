@@ -9,7 +9,20 @@ I started by adding a dictionary to my big list of p@k for each user. That way, 
 
 Well, I decided to continue calculating Jaccard coefficients using the entire training dataset, but I would only check nodes in the test data if the user follows at least _X number_ of users (`G.out_degree(user)`) in the overall dataset. (I'm 98% sure that isn't data leakage.) I started out at a threshold of 20 followwing, but I also tried different levels. It generally gets better as I get more stringent in the required following number, but there are also far fewer users who are following that many people (figure 1 below). Maybe there's something like an elbow plot where if I plot the avg overall p@k for different test following numbers? Still thinking about that one.
 
+**Figure 1**  
+![out-degree distribution chart (loglog axes)](https://raw.githubusercontent.com/EricPostMaster/tea-recommender/main/images/out_degree_distribution.png "out-degree distribution chart (loglog axes)")
 
+As you can see, many people follow very few people, so recommending people to follow based solely on the people the follow mutually with others is probably not going to work well! Next step there will be to serve up something like the most popular users. `teaequalsbliss` comes to mind quickly because she has a ton of followers.
+
+Anyway, after all that research, I implemented that threshold I mentioned earlier, and my precision improved dramatically! Here's an example of no restriction vs. requiring users to follow at least 30 people:
+
+| Following Threshold = 1        | Following Threshold = 30           |
+| ------------- |:-------------:|
+| ![p@k chart with following threshold = 1](https://raw.githubusercontent.com/EricPostMaster/tea-recommender/main/images/precision_at_k_threshold1.png "p@k with following threshold = 1")     | ![p@k chart with following threshold = 30](https://raw.githubusercontent.com/EricPostMaster/tea-recommender/main/images/precision_at_k_threshold30.png "p@k with following threshold = 1") |
+
+If you look past the non-synchronized y-axes, you'll see that the p@k for the lower threshold tops out at about 1% and bounces around pretty randomly. On the other side, at a minimum following threshold of 30 users, precision starts out at 10%, which is very exciting considering I couldn't top 2% yesterday! 🥳 The drawback, as you may have noticed is a significant reduction in the number of users who would be served personalized recommendations. In the first group, 100/100 would receive (lousy) recommendations. In the second group, only 30/500 followed enough other users to make the cut. It would be nice to provide personalized recommendations to at least 10% of users at at least 10% p@1, but we'll see if that's realistic. Now that I'm getting into better precision range, I may consider Mean Average Precision (MAP) from chapter 9 of PRS.
+
+For now, it's late, and I'm going to bed! 😴
 
 **12/26/22 - First decent recos!**
 I spent so much time working on this project today, and it was great. I've got some new resources to help me along the way: I bought _Practical Recommender Systems_ (PRS) by Kim Falk and _Graph Machine Learning_ by Stamile, Marzullo, and Deusebio for Christmas, so I've been reading a fair bit over the last few days.
