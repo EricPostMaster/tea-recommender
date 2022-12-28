@@ -2,7 +2,7 @@
 
 Welcome to my tea recommender repo! Because this is a pretty new project, the README is serving as a development journal of sorts. Once the project is complete, I'll put it elsewhere in the repo and replace it with something more like I have in my other repos (check them out!).
 
-**12/27/22 - Better precision**
+**12/27/22 - Better precision**  
 Today I focused on improving my _p@k_ from yesterday instead of making any new recommendations. There wasn't much to improve upon: my top precision was around 1.6 percent or something. **#Dismal**
 
 I started by adding a dictionary to my big list of p@k for each user. That way, I could see which users were having the most trouble. User `NimSeegobin` is a good example. He is only following three people, and two of them are in the training graph. When I look at the top recommendations per the Jaccard index, the coefficients are correct, but `NimSeegobin` follows so few people that it's nearly impossible to predict the 1 other user that we don't already know. Also, `NimSeegobin` isn't even in the test dataset, so recommendations for him will always be wrong, dragging down the average precision. What's a data scientist to do?!
