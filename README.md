@@ -2,6 +2,15 @@
 
 Welcome to my tea recommender repo! Because this is a pretty new project, the README is serving as a development journal of sorts. Once the project is complete, I'll put it elsewhere in the repo and replace it with something more like I have in my other repos (check them out!).
 
+**12/27/22 - Better precision**
+Today I focused on improving my _p@k_ from yesterday instead of making any new recommendations. There wasn't much to improve upon: my top precision was around 1.6 percent or something. **#Dismal**
+
+I started by adding a dictionary to my big list of p@k for each user. That way, I could see which users were having the most trouble. User `NimSeegobin` is a good example. He is only following three people, and two of them are in the training graph. When I look at the top recommendations per the Jaccard index, the coefficients are correct, but `NimSeegobin` follows so few people that it's nearly impossible to predict the 1 other user that we don't already know. Also, `NimSeegobin` isn't even in the test dataset, so recommendations for him will always be wrong, dragging down the average precision. What's a data scientist to do?!
+
+Well, I decided to continue calculating Jaccard coefficients using the entire training dataset, but I would only check nodes in the test data if the user follows at least _X number_ of users (`G.out_degree(user)`) in the overall dataset. (I'm 98% sure that isn't data leakage.) I started out at a threshold of 20 followwing, but I also tried different levels. It generally gets better as I get more stringent in the required following number, but there are also far fewer users who are following that many people (figure 1 below). Maybe there's something like an elbow plot where if I plot the avg overall p@k for different test following numbers? Still thinking about that one.
+
+
+
 **12/26/22 - First decent recos!**
 I spent so much time working on this project today, and it was great. I've got some new resources to help me along the way: I bought _Practical Recommender Systems_ (PRS) by Kim Falk and _Graph Machine Learning_ by Stamile, Marzullo, and Deusebio for Christmas, so I've been reading a fair bit over the last few days.
 
