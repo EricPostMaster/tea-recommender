@@ -521,3 +521,15 @@ class UserDict:
     def save_all_the_things(self):
         self.save_user_dict()
         self.save_all_urls()
+
+    def count_users_with_followers(self):
+        count = 0
+        for key in self.user_dict:
+            try:
+                if self.user_dict[key]['followers']:
+                    count += 1
+            except:
+                pass
+        
+        print(f"Total users with followers: {count}")
+        print(f"Total users in user_dict: {len(self.user_dict.keys())}")
