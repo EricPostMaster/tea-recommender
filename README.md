@@ -2,6 +2,26 @@
 
 Welcome to my tea recommender repo! Because this is a pretty new project, the README is serving as a development journal of sorts. Once the project is complete, I'll put it elsewhere in the repo and replace it with something more like I have in my other repos (check them out!).
 
+**1/7/23 - Flavor of code**  
+Now that the user dictionary is pretty much done, today I decided to work on adding flavors to the tea dictionary. I haven't really worked on the tea dictionary in a long time, so I was worried I wouldn't be able to make sense of my code. Fortunately, the `TeaDict` class is quite a bit simpler than the `UserDict`, so I was able to jump in pretty quickly.
+
+My original idea for the tea dictionary was just to have the tea name, URL, overall rating, and then individual ratings by users. Then, over Christmas break I was reading about embeddings and thought that a flavor embedding would be a really cool, non-ratings way to find similarities between teas. Also, each tea happens to have a nice, comma-separated list of flavors that are added by users, so it's a no-brainer!
+
+A couple of interesting things happened when I started working on it:
+1. None of my Selenium `driver.find_element_by` methods were working. Turns out, I had updated to Selenium 4 in order to fix a VSCode issue, and a side effect is that the `find_element_by` methods have all been deprecated! Fortunately, somebody made [this handy comment](https://github.com/SeleniumHQ/selenium/pull/10712#issuecomment-1255097016) for finding and replacing the old methods with the new ones.
+2. The flavor list is inside a `<dl>` HTML tag, which is a new one for me. Nothing a little [W3 Schools research](https://www.w3schools.com/tags/tag_dl.asp) can't fix! Turns out `dl` is a "description list", and its sub-elements are `dt` (terms) and `dd` (definition/description). The tricky part for me was that `dt` and `dd` do not have a parent-child relationship; they have a sibling relationship, which was new to me. After some StackOverflow research, I put together this XPath: `"//dl[@class='tea-description']/dt[text() = 'Flavors']/following-sibling::dd"`, which finds the description section, then the Flavors term and its flavor list. I'm still not sure what the double colons are at the end, but it works like a charm. Also, I think that `text() =` thing is definitely going to come in handy later.
+
+
+**1/4/23 - (Pretty much) all users scraped!**  
+I've been on vacation for the past few days, so I've taken advantage of the wicked fast wifi here in our Airbnb to scrape lots of data. I think I've completed the entire user dictionary, which is really exciting! As far as I can tell, there are about 8100 users in the network, and about 6300 of them have followers. The other 1800 (including myself) don't have any followers; we only follow other people.
+
+One major limitation of building a network by scraping followers, followers' followers, etc. is that if there is an island in the network, I can't get to it. There could be another group of 50 highly connected and highly active people that I can't see because they are completely disconnected from the rest of the network. That said, I think it's unlikely that there is an invisible group of highly active users.
+
+It's very possible that there are highly active individuals. They might be highly active tea reviewers but not inclined to follow others. If I want to, I could find them through tea reviews, where I am capturing the names of all individuals who review a tea. Their reviews will be helpful for recommending teas to other users, even if their folling/follower data isn't particularly useful.
+
+Anyway, for now I'm just stoked to have a full user dictionary. I re-ran my Jaccard coefficient follow recommender, and the precision at k increased significantly, which I expected because I have a lot more connections to work with. I went from ~2% to a little over 4% at _p@10_, and that is for all users, so 100% coverage!
+
+
 **12/27/22 - Better precision**  
 Today I focused on improving my _p@k_ from yesterday instead of making any new recommendations. There wasn't much to improve upon: my top precision was around 1.6 percent or something. **#Dismal**
 
