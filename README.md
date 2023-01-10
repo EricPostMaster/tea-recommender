@@ -2,6 +2,29 @@
 
 Welcome to my tea recommender repo! Because this is a pretty new project, the README is serving as a development journal of sorts. Once the project is complete, I'll put it elsewhere in the repo and replace it with something more like I have in my other repos (check them out!).
 
+**1/8/23 - Not-quite-unique identifiers**  
+So, like I mentioned yesterday, I haven't worked on the `TeaDict` class in a while. Somehow, my `get_teas` method stopped collecting URLs. Not sure why because I don't think the page code has changed, but it is what it is!
+
+The main thing I re-learned while fixing the `get_teas` method was how to locate a set of repeating chunks of code using the `find_elements` Selenium method and then drill down into them individually using a `for` loop. Here's an example of what I mean:
+
+```python
+# XPath to the root node
+tea_xpath = "//div[@class='product tea']//div[@class='tea']"
+
+# find_elements returns a list of each occurrence of the root node
+tea_root =  driver.find_elements(By.XPATH,tea_xpath)
+
+# within each root node ('tea' in this loop), there's an element
+# with the class 'tea-name', so I grab its href value
+for tea in tea_root:
+  tea_link = tea.find_element(By.CLASS_NAME,'tea-name').get_attribute("href")
+```
+
+Once I got that fixed, I noticed that there were a couple of teas that weren't being scraped correctly, specifically Irish Breakfast and Earl Grey, both of which are common and popular teas. After a bit of puzzling, I realized that I had made a silly mistake: I was using a non-unique tea name as the dictionary key for the master tea dictionary. Doh! :man_facepalming: Every major tea brand has an Earl Grey, so only the first one would have been captured if I had ignored it and continued scraping. Major flavors like that are popular and have many ratings, so that would have been terrible for my network data!
+
+I noticed all of this pretty late in the evening, so I'm going to bed and will work on it after I've gotten some sleep 😴 I'll need to delete the tea dictionary that I have and start over, but I only had a few dozen teas scraped, so it's not a big deal. The code updates to use a unique identifier for each tea should be pretty straightforward, so I'm grateful for that. Despite these issues, coming back to the `TeaDict` class a few months after working on it has shown me that I've learned a lot since then, so I feel good about that.
+
+
 **1/7/23 - Flavor of code**  
 Now that the user dictionary is pretty much done, today I decided to work on adding flavors to the tea dictionary. I haven't really worked on the tea dictionary in a long time, so I was worried I wouldn't be able to make sense of my code. Fortunately, the `TeaDict` class is quite a bit simpler than the `UserDict`, so I was able to jump in pretty quickly.
 
