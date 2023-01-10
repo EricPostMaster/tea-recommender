@@ -1,20 +1,11 @@
 from os.path import exists
-# import pandas as pd
-# import csv
-# from parsel import Selector
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
-# from datetime import date
-# from datetime import datetime, timedelta
+from selenium.webdriver.common.by import By
 import time
 import re
-# import networkx as nx
-# import matplotlib.pyplot as plt
-# from pyvis.network import Network
 import math
-# from selenium.common.exceptions import NoSuchElementException
 import pickle
 
 
@@ -57,6 +48,13 @@ class UserDict:
             if someone has 500 followers, there would be 50 pages of followers.
             If you have only sraped 20 followers, the function will begin
             scraping at page 3 and continue for the specified number of pages.
+    
+    count_users_with_followers(self):
+        Returns the number of users in the user_dict, the number of users who
+            have followers, and the number of users who do not.
+    
+    get_zero_follower_users(self):
+        Return list of users with zero followers.
     
     save_user_dict(self,filename='user_dict',filetype='p')
         Pickle theuser_dict for later use.
@@ -133,20 +131,20 @@ class UserDict:
 
         self.user_dict = {current_user:{}}
 
-        follower_count = int(driver.find_element_by_id('follower_count').text)
+        follower_count = int(driver.find_element(By.ID,'follower_count').text)
         max_follower_pg = int(math.ceil(follower_count / 10.0))
 
         self.user_dict[current_user]['follower_count'] = follower_count
         self.user_dict[current_user]['follower_pgs'] = max_follower_pg
 
-        following_count = int(driver.find_element_by_id('following_count').text)
+        following_count = int(driver.find_element(By.ID,'following_count').text)
         # max_following_pg = int(round(following_count,-1)/10)
         max_following_pg = int(math.ceil(following_count / 10.0))
 
         # self.user_dict[current_user]['following_count'] = following_count
         # self.user_dict[current_user]['following_pgs'] = max_following_pg
 
-        # user_id = driver.find_elements_by_css_selector("h1>a")
+        # user_id = driver.find_elements(By.CSS_SELECTOR,"h1>a")
 
         # for id_info in user_id:
         #     user_id = id_info.get_attribute('data-leader-id')
@@ -168,10 +166,10 @@ class UserDict:
 
 
             # this is where the common xpath goes
-            # user_div = driver.find_elements_by_xpath("//div[@class='user']")
+            # user_div = driver.find_elements(By.XPATH,"//div[@class='user']")
 
             # Get all user urls from the current page
-            all_links = driver.find_elements_by_css_selector(".users>.user>.details>a")
+            all_links = driver.find_elements(By.CSS_SELECTOR,".users>.user>.details>a")
 
             # For users who aren't in the self.user_dict yet, so I need to get their followers
             need_followers = []
@@ -197,7 +195,7 @@ class UserDict:
             print('need_followers for ',current_user,': ',need_followers)
             
             # need to just get both of these at the same time. They share a CSS root
-            follower_followers = driver.find_elements_by_css_selector(".users>.user>.details>em")
+            follower_followers = driver.find_elements(By.CSS_SELECTOR,".users>.user>.details>em")
 
             for count in follower_followers:
                 ff_count = int(count.get_attribute("data-pluralize-count"))
@@ -271,14 +269,14 @@ class UserDict:
         while i < num_users: # len(all_urls)+1:
 
             current_user = self.all_urls[i]
-
+            
             # print('---------------------\ncurrent_user: ',current_user)
             # print('---------------------\nall_urls index: ',i)
-
             # Check if current user already has followers before doing anything else
             if 'followers' in self.user_dict[current_user]:
                 # print(f"{current_user} already has followers")
                 num_users += 1
+                print(f"{current_user}, i: {i}")
                 # print(f"new num_users: {num_users}")
                 i += 1
             else:
@@ -289,7 +287,7 @@ class UserDict:
                 # Set max follower and following pages
                 max_follower_pg = self.user_dict[current_user]['follower_pgs']
 
-                # following_count = int(driver.find_element_by_id('following_count').text)
+                # following_count = int(driver.find_element(By.ID,'following_count').text)
                 # max_following_pg = int(round(following_count,-1)/10)
                 # max_following_pg = int(math.ceil(following_count / 10.0))
                 
@@ -306,7 +304,7 @@ class UserDict:
                         driver.get(f'https://steepster.com/{current_user}/followers?page={j}')
 
                     # Retrieve URLs for followers
-                    all_links = driver.find_elements_by_css_selector(".users>.user>.details>a")
+                    all_links = driver.find_elements(By.CSS_SELECTOR,".users>.user>.details>a")
                     
                     # For users who aren't in the user_dict yet, so I need to get their followers
                     need_followers = []
@@ -321,7 +319,7 @@ class UserDict:
                         page_follower_urls.append(m.group(0))
                         # if url not in user_dict keys, append to all_urls
 
-                        print('current_follower: ', m.group(0))
+                        # print('current_follower: ', m.group(0))
                         # print('Current user_dict list: ', user_dict.keys())
                         
 
@@ -337,7 +335,7 @@ class UserDict:
                     # print('need_followers for ',current_user,': ',need_followers)
                     
                     # if url not in all_urls, add to a list to get number of followers
-                    follower_followers = driver.find_elements_by_css_selector(".users>.user>.details>em")
+                    follower_followers = driver.find_elements(By.CSS_SELECTOR,".users>.user>.details>em")
 
                     for count in follower_followers:
                         ff_count = int(count.get_attribute("data-pluralize-count"))
@@ -346,7 +344,7 @@ class UserDict:
                     # zip the lists together
                     zipped_ff_list = list(zip(page_follower_urls, ff_counts))
 
-                    print('Followers who are not in the user_dict and their follower count:\n', zipped_ff_list)
+                    # print('Followers who are not in the user_dict and their follower count:\n', zipped_ff_list)
 
                     for user, user_ff_count in zipped_ff_list:
                         # print('User in zipped_ff_list: ', user)
@@ -405,11 +403,12 @@ class UserDict:
             pages_scraped = int(math.ceil(followers_scraped / 10.0))
             print(f"follower pages: {follower_pages}\npages scraped: {pages_scraped}")
             pages_left = follower_pages - pages_scraped
+            print(f"pages left: {pages_left}")
 
-            if pages_scraped >= follower_pages-1:
+            if pages_scraped == follower_pages:
                 num_users += 1
             else:
-                for j in range(1,min(pages_left,num_follower_pgs+1)):
+                for j in range(1,min(pages_left+1,num_follower_pgs+1)):
 
                     page = pages_scraped + j
                     print('current user: ', current_user)
@@ -418,7 +417,7 @@ class UserDict:
                     driver.get(f'{url}{current_user}/followers?page={page}')
 
                     # Retrieve URLs for followers
-                    all_links = driver.find_elements_by_css_selector(".users>.user>.details>a")
+                    all_links = driver.find_elements(By.CSS_SELECTOR,".users>.user>.details>a")
 
                     # For users who aren't in the user_dict yet, so I need to get their followers
                     need_followers = []
@@ -453,7 +452,7 @@ class UserDict:
                     # print('need_followers for ',current_user,': ',need_followers)
 
                     # if url not in all_urls, add to a list to get number of followers
-                    follower_followers = driver.find_elements_by_css_selector(".users>.user>.details>em")
+                    follower_followers = driver.find_elements(By.CSS_SELECTOR,".users>.user>.details>em")
 
                     for count in follower_followers:
                         ff_count = int(count.get_attribute("data-pluralize-count"))
@@ -483,7 +482,47 @@ class UserDict:
             i += 1
 
         driver.quit()
+
+    
+    def count_users_with_followers(self):
+        """Returns the number of users in the user_dict, the number of users who
+            have followers, and the number of users who do not.
+        """
+        count = 0
+        for key in self.user_dict:
+            try:
+                if self.user_dict[key]['followers']:
+                    count += 1
+            except:
+                pass
         
+        zero_followers = len(self.user_dict.keys()) - count
+
+        print(f"Total users in user_dict: {len(self.user_dict.keys())}")
+        print(f"Total users with followers: {count}")
+        print(f"Total users with zero followers: {zero_followers}")
+        
+        
+
+    def get_zero_follower_users(self):
+        """Return list of users with zero followers
+        """
+
+        # zero_follower_count = 0
+        zero_follower_list = []
+
+        for key in self.user_dict:
+                    try:
+                        if self.user_dict[key]['followers'] != []:
+                            pass
+                        else:
+                            zero_follower_list.append(key)
+                            # zero_follower_count += 1
+                    except:
+                        pass
+
+        return zero_follower_list
+
 
     def save_user_dict(self,filename='user_dict',filetype='p'):
         """Pickle the user_dict data for later use.
@@ -522,14 +561,9 @@ class UserDict:
         self.save_user_dict()
         self.save_all_urls()
 
-    def count_users_with_followers(self):
-        count = 0
-        for key in self.user_dict:
-            try:
-                if self.user_dict[key]['followers']:
-                    count += 1
-            except:
-                pass
-        
-        print(f"Total users with followers: {count}")
-        print(f"Total users in user_dict: {len(self.user_dict.keys())}")
+
+
+if __name__ == "__main__":
+    all_users = UserDict()
+    all_users.get_users(num_users=1, num_follower_pgs=20)
+    all_users.save_all_the_things()
