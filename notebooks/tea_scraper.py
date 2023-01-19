@@ -273,7 +273,7 @@ class TeaDict:
             # current_tea is a tea ID number
 
             # make sure tea has review_pages attribute
-            self.get_max_pages(tea_id=tea_id, driver=driver, i=i)
+            self.get_max_pages(tea_id=tea_id, driver=driver)
 
             review_count, start_page = self.check_existing_reviews(tea_id)
 
@@ -282,7 +282,7 @@ class TeaDict:
             end_page = min(min_review_pgs, max_review_pgs)
 
             # what happens when a tea has all the ratings scraped?
-            if start_page > max_review_pgs:
+            if start_page >= max_review_pgs:
                 num_teas += 1
             else:
             # Scrape reviewers and ratings
@@ -328,14 +328,14 @@ class TeaDict:
                             (self.tea_dict[tea_id]['reviewers'][user_info[0]]
                                 ['weight']) = user_info[1]
 
-            new_review_count = len(self.tea_dict[tea_id]['reviewers'].keys())
-            reviews_added = new_review_count - review_count
+                new_review_count = len(self.tea_dict[tea_id]['reviewers'].keys())
+                reviews_added = new_review_count - review_count
 
-            print(f'Previous review count: {review_count}')
-            print(f'New review count: {new_review_count}')
-            print(f'{reviews_added} reviews added to {tea_id}')
+                print(f'Previous review count: {review_count}')
+                print(f'New review count: {new_review_count}')
+                print(f'{reviews_added} reviews added to {tea_id}')
 
-            print(tea_id,'complete')
+                print(tea_id,'complete')
             print('-----------------------\n')
             i += 1
 
