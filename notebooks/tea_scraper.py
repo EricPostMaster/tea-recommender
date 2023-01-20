@@ -189,10 +189,10 @@ class TeaDict:
         tea_id : str
             Tea ID for a tea in the dictionary. ID is used to call correct URL.
         """
-
-        if self.tea_dict[tea_id]['review_pages']:
-            print(self.tea_dict[tea_id]['name'], ' already has review_pages')
-        else:
+        try:
+            if self.tea_dict[tea_id]['review_pages']:
+                print(self.tea_dict[tea_id]['name'], ' already has review_pages')
+        except:
             tea_url = self.tea_dict[tea_id]['url']
             
             driver.get(f'{tea_url}?page=1#tasting-notes')
@@ -224,13 +224,14 @@ class TeaDict:
         """
 
         # if the tea has reviews, calculate appropriate start page
-        if self.tea_dict[tea_id]['reviewers']:
-            review_count = len(self.tea_dict[tea_id]['reviewers'].keys())
-            start_page = int(ceil(review_count/10))+1
-            print('start page:', start_page)
-            print(f'{tea_id} has {review_count} existing reviews.')
+        try:
+            if self.tea_dict[tea_id]['reviewers']:
+                review_count = len(self.tea_dict[tea_id]['reviewers'].keys())
+                start_page = int(ceil(review_count/10))+1
+                print('start page:', start_page)
+                print(f'{tea_id} has {review_count} existing reviews.')
         # if the tea has no reviews, create 'reviewers' dictionary
-        else:
+        except:
             self.tea_dict[tea_id]['reviewers'] = {}
             review_count = 0
             start_page = 1
