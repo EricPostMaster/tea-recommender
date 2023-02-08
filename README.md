@@ -2,6 +2,42 @@
 
 Welcome to my tea recommender repo! Because this is a pretty new project, the README is serving as a development journal of sorts. Once the project is complete, I'll put it elsewhere in the repo and replace it with something more like I have in my other repos (check them out!).
 
+**2/7/23 - Automated scraping is live at last!!!**
+
+Wow. It has been a long month, but I've got something awesome to show for it: I've got an automated Lambda function scraping and storing data on a schedule! It’s humming along with its Docker container, pulling new data every hour, and logging it in glorious, if not nauseating, detail.
+
+It has been a difficult but worthwhile journey. What started out as, “Oh sure, I’ll just pop the code into Lambda and get/put data in an S3 bucket” turned into an deep dive into Lambda layers, Docker, CloudWatch, and Serverless. I’m even starting to understand what a YAML file does, which has befuddled me for some time now. Side projects are my favorite.
+
+**My First Idea**
+
+My initial setup idea was putting the existing network dictionary pickle file into an S3 bucket and then scheduling the Lambda function to pull from that bucket, scrape, and then save the updated file back in S3, overwriting the original file.
+
+Turns out, that was a dramatic oversimplification, and Selenium is the culprit.
+
+**Layers & Containers**
+
+Scraping data with Selenium requires the Selenium library (duh) and Chromedriver, neither of which are default Python packages. Lambda functions only run with default Python modules and a number of libraries selected by AWS. The first approach I found is to create a layer for each of the extra modules required and connect the layer(s) to the function. I followed [this tutorial](https://dev.to/awscommunity-asean/creating-an-api-that-runs-selenium-via-aws-lambda-3ck3), but I gave up after I kept getting Chromedriver errors. Instead, I used a Docker container.
+
+Creating a Lambda function using a Docker container circumvents the need for layers because everything is built into the container. I was so excited when I found this [GitHub repo by Umihico](https://github.com/umihico/docker-selenium-lambda/), which provides a Docker image specifically for headless Chrome and Selenium as well as a Serverless YAML file to build the container on ECR. I added a schedule to the function in the file as well as an IAM role provision so the function can get/put objects in the correct S3 bucket. I know it's a little thing, but I felt really proud for doing both of those things because I've never worked with a YAML file before. Side note: the [Serverless framework docs](https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml) are great.
+
+**Summary - Important Learnings**
+- How to get and put objects from an S3 bucket
+- Setting up basic IAM roles for the related service
+- Creating Lambda layers
+- Deploying with Serverless framework
+- Managing deployment from the CLI on local machine
+- Scheduling Lambda functions through the serverless.yml file as well as in AWS settings
+
+**Next Steps**
+
+Now that the scraper is chugging along, I'm going to turn my focus into getting the network dictionary file into a database. I've been considering using AWS Neptune following [this tutorial](https://docs.aws.amazon.com/neptune/latest/userguide/bulk-load-data.html) (plus whatever else I need from StackOverflow), but I'm also going to explore DynamoDB because I'm not sure whether a graph or NoSQL database would be a better fit.
+
+**Parting Thought**
+
+If you happen to be reading this and feeling like I have made this look easy, I want to be absolutely clear: This explanation is just a few paragraphs long, but the real-life process was filled with false starts, small successes, and seemingly endless new error messages. It's very easy to quit along the way (I have before), but I'm so glad I stuck with it. I learned good things and feel much more confident exploring new AWS services.
+
+
+
 **1/8/23 - Not-quite-unique identifiers**  
 So, like I mentioned yesterday, I haven't worked on the `TeaDict` class in a while. Somehow, my `get_teas` method stopped collecting URLs. Not sure why because I don't think the page code has changed, but it is what it is!
 
